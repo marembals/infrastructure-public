@@ -1,0 +1,269 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [
+    { "title": "AMD Overview", "url": "/d/amd-w7800-gpu", "type": "link", "icon": "external link" },
+    { "title": "Pipeline Monitor", "url": "/d/gpu-pipeline-monitor", "type": "link", "icon": "external link" }
+  ],
+  "panels": [
+    {
+      "type": "row",
+      "title": "VRAM Stability During Inference",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "collapsed": false
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "blue" },
+          "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 28000 }, { "color": "red", "value": 31000 }] },
+          "unit": "decmbytes", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 1 },
+      "id": 1,
+      "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "title": "VRAM Used Now",
+      "type": "stat",
+      "targets": [{ "expr": "max(gpu_used_vram)", "legendFormat": "Used", "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "green" },
+          "unit": "decmbytes", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 1 },
+      "id": 2,
+      "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "title": "VRAM Free",
+      "type": "stat",
+      "targets": [{ "expr": "max(gpu_free_vram)", "legendFormat": "Free", "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "purple" },
+          "unit": "percent", "min": 0, "max": 100,
+          "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 70 }, { "color": "red", "value": 90 }] }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 1 },
+      "id": 3,
+      "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "title": "VRAM Utilization %",
+      "type": "stat",
+      "targets": [{ "expr": "max(gpu_used_vram) / max(gpu_total_vram) * 100", "legendFormat": "Util %", "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "green" },
+          "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 80 }, { "color": "red", "value": 95 }] },
+          "unit": "percent", "min": 0, "max": 100
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 1 },
+      "id": 4,
+      "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "title": "GFX Activity",
+      "type": "stat",
+      "targets": [{ "expr": "max(gpu_gfx_activity)", "legendFormat": "GFX", "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 25, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "smooth", "gradientMode": "scheme" },
+          "unit": "decmbytes", "min": 0
+        },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "5m avg" }, "properties": [{ "id": "custom.lineWidth", "value": 3 }, { "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }] }
+        ]
+      },
+      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 5 },
+      "id": 5,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "VRAM Usage — Stability View (instant vs 5m average)",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "max(gpu_used_vram)", "legendFormat": "Instant", "refId": "A" },
+        { "expr": "avg_over_time(max(gpu_used_vram)[5m:])", "legendFormat": "5m avg", "refId": "B" }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "GPU Utilization Patterns",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 14 },
+      "id": 101,
+      "collapsed": false
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 20, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "smooth", "gradientMode": "scheme" },
+          "unit": "percent", "min": 0, "max": 100
+        },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "GFX 5m avg" }, "properties": [{ "id": "custom.lineWidth", "value": 3 }, { "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }] }
+        ]
+      },
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 15 },
+      "id": 6,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "GFX Activity — Inference Load Pattern",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "max(gpu_gfx_activity)", "legendFormat": "GFX instant", "refId": "A" },
+        { "expr": "avg_over_time(max(gpu_gfx_activity)[5m:])", "legendFormat": "GFX 5m avg", "refId": "B" }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 15, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "smooth" },
+          "unit": "percent", "min": 0, "max": 100
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 15 },
+      "id": 7,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "Memory & Multimedia Engine Activity",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "max(gpu_umc_activity)", "legendFormat": "Memory engine %", "refId": "A" },
+        { "expr": "max(gpu_mma_activity)", "legendFormat": "Multimedia %", "refId": "B" },
+        { "expr": "max(gpu_vcn_activity)", "legendFormat": "VCN (video) %", "refId": "C" }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Inference Correlation — GPU vs Pipeline",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 24 },
+      "id": 102,
+      "collapsed": false
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 10, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "smooth" },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 25 },
+      "id": 8,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "GPU Activity vs Synthesis Latency",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "max(gpu_gfx_activity)", "legendFormat": "GFX activity %", "refId": "A" },
+        { "expr": "histogram_quantile(0.95, rate(ai_gateway_synthesis_latency_seconds_bucket{lane=\"amd\"}[5m])) * 10", "legendFormat": "Synth p95 (×10 scaled)", "refId": "B" }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 10, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "smooth" },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 25 },
+      "id": 9,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "Power vs Request Rate",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "max(gpu_average_package_power)", "legendFormat": "Power (W)", "refId": "A" },
+        { "expr": "rate(ai_gateway_http_requests_total[5m]) * 100", "legendFormat": "Req rate (×100 scaled)", "refId": "B" }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Thermal Under Load",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 34 },
+      "id": 103,
+      "collapsed": false
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 15, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "smooth" },
+          "unit": "short"
+        },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Junction temp" }, "properties": [{ "id": "custom.axisPlacement", "value": "left" }, { "id": "unit", "value": "celsius" }] },
+          { "matcher": { "id": "byName", "options": "GFX activity" }, "properties": [{ "id": "custom.axisPlacement", "value": "right" }, { "id": "unit", "value": "percent" }] }
+        ]
+      },
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 35 },
+      "id": 10,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "Temperature vs Load (dual axis)",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "max(gpu_junction_temperature)", "legendFormat": "Junction temp", "refId": "A" },
+        { "expr": "max(gpu_gfx_activity)", "legendFormat": "GFX activity", "refId": "B" }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 15, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "smooth" },
+          "unit": "short"
+        },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Power (W)" }, "properties": [{ "id": "custom.axisPlacement", "value": "left" }, { "id": "unit", "value": "watt" }] },
+          { "matcher": { "id": "byName", "options": "VRAM used (MB)" }, "properties": [{ "id": "custom.axisPlacement", "value": "right" }, { "id": "unit", "value": "decmbytes" }] }
+        ]
+      },
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 35 },
+      "id": 11,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "Power vs VRAM (dual axis)",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "max(gpu_average_package_power)", "legendFormat": "Power (W)", "refId": "A" },
+        { "expr": "max(gpu_used_vram)", "legendFormat": "VRAM used (MB)", "refId": "B" }
+      ]
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 39,
+  "tags": ["gpu", "amd", "ai-workload", "infrastructure"],
+  "templating": { "list": [] },
+  "time": { "from": "now-3h", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "AMD W7800 — AI Workload",
+  "uid": "amd-w7800-ai-workload",
+  "version": 1
+}

@@ -1,0 +1,70 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["prometheus:9090"]
+
+  - job_name: "node_exporter"
+    static_configs:
+      - targets: ["node_exporter:9100"]
+
+  - job_name: "dcgm"
+    static_configs:
+      - targets: ["dcgm_exporter:9400"]
+
+  - job_name: "cadvisor"
+    static_configs:
+      - targets: ["cadvisor:8080"]
+
+  - job_name: "vllm"
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["vllm-coder:8000"]
+
+  - job_name: "amd_gpu"
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["device-metrics-exporter:5000"]
+
+  - job_name: "ai-gateway"
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["ai-gateway:8088"]
+
+  - job_name: "qdrant"
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["qdrant:6333"]
+
+  - job_name: "jaeger"
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["jaeger:14269"]
+
+  - job_name: "orchestrator"
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["host.docker.internal:8092"]
+
+  - job_name: "blackbox"
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+          - http://searxng:8080/
+          - http://comfyui:8188/
+          - http://open-webui:3000/
+          - http://host.docker.internal:11434/
+          - http://host.docker.internal:11435/
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+

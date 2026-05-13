@@ -1,0 +1,331 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [
+    { "title": "RAG KB Overview", "url": "/d/rag-kb-overview", "type": "link", "icon": "external link" }
+  ],
+  "panels": [
+    {
+      "type": "row",
+      "title": "Collection Overview",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "collapsed": false
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "blue" },
+          "unit": "short", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 1 },
+      "id": 1,
+      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "title": "Collections",
+      "type": "stat",
+      "targets": [{ "expr": "collections_total{job=\"qdrant\"}", "legendFormat": "", "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "purple" },
+          "unit": "short", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 1 },
+      "id": 2,
+      "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "title": "Total Vectors",
+      "type": "stat",
+      "targets": [{ "expr": "sum(collection_vectors{job=\"qdrant\"})", "legendFormat": "", "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "green" },
+          "unit": "short", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 1 },
+      "id": 3,
+      "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "title": "Total Points",
+      "type": "stat",
+      "targets": [{ "expr": "sum(collection_points{job=\"qdrant\"})", "legendFormat": "", "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "options": { "0": { "color": "green", "text": "NORMAL" }, "1": { "color": "red", "text": "RECOVERY" } }, "type": "value" }
+          ],
+          "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1 }] }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 1 },
+      "id": 4,
+      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "title": "Recovery Mode",
+      "type": "stat",
+      "targets": [{ "expr": "app_status_recovery_mode{job=\"qdrant\"}", "legendFormat": "", "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "orange" },
+          "unit": "short", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 1 },
+      "id": 5,
+      "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "title": "Running Optimizations",
+      "type": "stat",
+      "targets": [{ "expr": "sum(collection_running_optimizations{job=\"qdrant\"})", "legendFormat": "", "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "semi-dark-green" },
+          "unit": "short", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 20, "y": 1 },
+      "id": 6,
+      "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "title": "Snapshots Created",
+      "type": "stat",
+      "targets": [{ "expr": "snapshot_created_total{job=\"qdrant\"}", "legendFormat": "", "refId": "A" }]
+    },
+    {
+      "type": "row",
+      "title": "Memory",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 },
+      "id": 101,
+      "collapsed": false
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 20, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "smooth" },
+          "unit": "bytes", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 },
+      "id": 7,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "Qdrant Memory Usage",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "memory_active_bytes{job=\"qdrant\"}", "legendFormat": "Active", "refId": "A" },
+        { "expr": "memory_allocated_bytes{job=\"qdrant\"}", "legendFormat": "Allocated", "refId": "B" },
+        { "expr": "memory_resident_bytes{job=\"qdrant\"}", "legendFormat": "Resident", "refId": "C" },
+        { "expr": "memory_retained_bytes{job=\"qdrant\"}", "legendFormat": "Retained", "refId": "D" }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 10, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "smooth" },
+          "unit": "bytes", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 },
+      "id": 8,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "Metadata Memory",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "memory_metadata_bytes{job=\"qdrant\"}", "legendFormat": "Metadata", "refId": "A" }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Collection Details",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 14 },
+      "id": 102,
+      "collapsed": false
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 15, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "smooth" },
+          "unit": "short", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 15 },
+      "id": 9,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "Vectors per Collection",
+      "type": "timeseries",
+      "targets": [{ "expr": "collection_vectors{job=\"qdrant\"}", "legendFormat": "{{collection}}", "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 15, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "smooth" },
+          "unit": "short", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 15 },
+      "id": 10,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "Points per Collection",
+      "type": "timeseries",
+      "targets": [{ "expr": "collection_points{job=\"qdrant\"}", "legendFormat": "{{collection}}", "refId": "A" }]
+    },
+    {
+      "type": "row",
+      "title": "Replication & Transfers",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 23 },
+      "id": 103,
+      "collapsed": false
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 10, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "stepAfter" },
+          "unit": "short", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 24 },
+      "id": 11,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "Replica Status",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "collection_active_replicas_min{job=\"qdrant\"}", "legendFormat": "{{collection}} min active", "refId": "A" },
+        { "expr": "collection_active_replicas_max{job=\"qdrant\"}", "legendFormat": "{{collection}} max active", "refId": "B" },
+        { "expr": "collection_dead_replicas{job=\"qdrant\"}", "legendFormat": "{{collection}} dead", "refId": "C" }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 10, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "stepAfter" },
+          "unit": "short", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 24 },
+      "id": 12,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "Shard Transfers & Operations",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "collection_shard_transfer_incoming{job=\"qdrant\"}", "legendFormat": "{{collection}} incoming", "refId": "A" },
+        { "expr": "collection_shard_transfer_outgoing{job=\"qdrant\"}", "legendFormat": "{{collection}} outgoing", "refId": "B" },
+        { "expr": "collection_running_optimizations{job=\"qdrant\"}", "legendFormat": "{{collection}} optimizations", "refId": "C" }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Process & Resources",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 32 },
+      "id": 104,
+      "collapsed": false
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 10, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "smooth" },
+          "unit": "short", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 33 },
+      "id": 13,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi" } },
+      "title": "Open File Descriptors",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "process_open_fds{job=\"qdrant\"}", "legendFormat": "Open FDs", "refId": "A" },
+        { "expr": "process_max_fds{job=\"qdrant\"}", "legendFormat": "Max FDs", "refId": "B" }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 10, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "smooth" },
+          "unit": "short", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 33 },
+      "id": 14,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi" } },
+      "title": "Threads",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "process_threads{job=\"qdrant\"}", "legendFormat": "Threads", "refId": "A" }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 10, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "smooth" },
+          "unit": "short", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 33 },
+      "id": 15,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi" } },
+      "title": "Open Memory Maps",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "process_open_mmaps{job=\"qdrant\"}", "legendFormat": "Open mmaps", "refId": "A" },
+        { "expr": "system_max_mmaps{job=\"qdrant\"}", "legendFormat": "Max mmaps", "refId": "B" }
+      ]
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["qdrant", "vector-db", "infrastructure"],
+  "templating": { "list": [] },
+  "time": { "from": "now-3h", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Qdrant — Vector Database",
+  "uid": "qdrant-vector-db",
+  "version": 1
+}

@@ -1,0 +1,258 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "type": "row",
+      "title": "Paperless Service Status",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "collapsed": false
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "unit": "bytes", "min": 0
+        },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "paperless" }, "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "paperless-db" }, "properties": [{ "id": "color", "value": { "fixedColor": "blue", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "paperless-redis" }, "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "paperless-gotenberg" }, "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "paperless-tika" }, "properties": [{ "id": "color", "value": { "fixedColor": "purple", "mode": "fixed" } }] }
+        ]
+      },
+      "gridPos": { "h": 4, "w": 24, "x": 0, "y": 1 },
+      "id": 1,
+      "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "title": "Memory Usage (per component)",
+      "type": "stat",
+      "targets": [{ "expr": "container_memory_working_set_bytes{name=~\"paperless.*\"}", "legendFormat": "{{name}}", "refId": "A" }]
+    },
+    {
+      "type": "row",
+      "title": "CPU Usage",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 },
+      "id": 101,
+      "collapsed": false
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 20, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "smooth", "stacking": { "mode": "normal" } },
+          "unit": "short", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 6 },
+      "id": 2,
+      "options": { "legend": { "displayMode": "table", "placement": "right", "calcs": ["mean", "max"] }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "Paperless Stack — CPU Usage (cores)",
+      "description": "CPU spikes in paperless container indicate document processing / OCR activity",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "rate(container_cpu_usage_seconds_total{name=~\"paperless.*\"}[5m])", "legendFormat": "{{name}}", "refId": "A" }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Memory Over Time",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 14 },
+      "id": 102,
+      "collapsed": false
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 15, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "smooth" },
+          "unit": "bytes", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 15 },
+      "id": 3,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "Working Set Memory",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "container_memory_working_set_bytes{name=~\"paperless.*\"}", "legendFormat": "{{name}}", "refId": "A" }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 15, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "smooth" },
+          "unit": "bytes", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 15 },
+      "id": 4,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "RSS Memory",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "container_memory_rss{name=~\"paperless.*\"}", "legendFormat": "{{name}}", "refId": "A" }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Network I/O (ingestion indicator)",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 23 },
+      "id": 103,
+      "collapsed": false
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 15, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "smooth" },
+          "unit": "Bps", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 24 },
+      "id": 5,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "Network Receive (ingestion proxy)",
+      "description": "Spikes indicate document uploads / API ingestion",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "rate(container_network_receive_bytes_total{name=~\"paperless\"}[5m])", "legendFormat": "Receive", "refId": "A" }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 15, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "smooth" },
+          "unit": "Bps", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 24 },
+      "id": 6,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "Network Transmit",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "rate(container_network_transmit_bytes_total{name=~\"paperless\"}[5m])", "legendFormat": "Transmit", "refId": "A" }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Disk I/O (OCR / processing indicator)",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 32 },
+      "id": 104,
+      "collapsed": false
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 15, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "smooth" },
+          "unit": "Bps", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 33 },
+      "id": 7,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "Disk Read (document processing)",
+      "description": "Sustained reads indicate OCR or document conversion activity",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "rate(container_fs_reads_bytes_total{name=~\"paperless.*\"}[5m])", "legendFormat": "{{name}}", "refId": "A" }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 15, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "smooth" },
+          "unit": "Bps", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 33 },
+      "id": 8,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "Disk Write (document storage)",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "rate(container_fs_writes_bytes_total{name=~\"paperless.*\"}[5m])", "legendFormat": "{{name}}", "refId": "A" }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Database (PostgreSQL container)",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 41 },
+      "id": 105,
+      "collapsed": false
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 15, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "smooth" },
+          "unit": "short", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 42 },
+      "id": 9,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "PostgreSQL CPU Usage",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "rate(container_cpu_usage_seconds_total{name=\"paperless-db\"}[5m])", "legendFormat": "CPU cores", "refId": "A" }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 15, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "smooth" },
+          "unit": "bytes", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 42 },
+      "id": 10,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "PostgreSQL Filesystem Usage",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "container_fs_usage_bytes{name=\"paperless-db\"}", "legendFormat": "DB disk usage", "refId": "A" }
+      ]
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["paperless", "document-management", "infrastructure"],
+  "templating": { "list": [] },
+  "time": { "from": "now-6h", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Paperless-ngx — Document Management",
+  "uid": "paperless-ngx",
+  "version": 1
+}

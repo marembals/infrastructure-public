@@ -1,0 +1,318 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [
+    { "title": "AMD Overview", "url": "/d/amd-w7800-gpu", "type": "link", "icon": "external link" },
+    { "title": "AMD Deep Metrics", "url": "/d/amd-w7800-deep-metrics", "type": "link", "icon": "external link" }
+  ],
+  "panels": [
+    {
+      "type": "row",
+      "title": "Health & Status",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "collapsed": false
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "options": { "0": { "color": "red", "text": "UNHEALTHY" }, "1": { "color": "green", "text": "HEALTHY" } }, "type": "value" }
+          ],
+          "thresholds": { "steps": [{ "color": "red", "value": null }, { "color": "green", "value": 1 }] }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 5, "w": 6, "x": 0, "y": 1 },
+      "id": 1,
+      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] }, "textMode": "value" },
+      "title": "GPU Health",
+      "type": "stat",
+      "targets": [{ "expr": "max(gpu_health)", "legendFormat": "Health", "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "red" },
+          "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 90 }, { "color": "red", "value": 100 }] },
+          "unit": "celsius", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 5, "w": 6, "x": 6, "y": 1 },
+      "id": 2,
+      "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["max"] } },
+      "title": "Peak Junction Temp (window)",
+      "type": "stat",
+      "targets": [{ "expr": "max_over_time(max(gpu_junction_temperature)[1h:])", "legendFormat": "Peak", "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "orange" },
+          "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 220 }, { "color": "red", "value": 260 }] },
+          "unit": "watt", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 5, "w": 6, "x": 12, "y": 1 },
+      "id": 3,
+      "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["max"] } },
+      "title": "Peak Power Draw (window)",
+      "type": "stat",
+      "targets": [{ "expr": "max_over_time(max(gpu_average_package_power)[1h:])", "legendFormat": "Peak", "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "semi-dark-blue" },
+          "unit": "short", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 5, "w": 6, "x": 18, "y": 1 },
+      "id": 4,
+      "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "title": "Total ECC Errors (correctable)",
+      "type": "stat",
+      "targets": [{ "expr": "max(gpu_ecc_correct_total)", "legendFormat": "Correctable", "refId": "A" }]
+    },
+    {
+      "type": "row",
+      "title": "Throttling Indicators",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 6 },
+      "id": 101,
+      "collapsed": false
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 15, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "smooth" },
+          "unit": "short"
+        },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Junction temp (°C)" }, "properties": [{ "id": "custom.axisPlacement", "value": "left" }, { "id": "unit", "value": "celsius" }, { "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "GPU clock (MHz)" }, "properties": [{ "id": "custom.axisPlacement", "value": "right" }, { "id": "unit", "value": "rotMHz" }, { "id": "color", "value": { "fixedColor": "blue", "mode": "fixed" } }] }
+        ]
+      },
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 7 },
+      "id": 5,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "Thermal Throttle Detection — Temp vs Clock",
+      "description": "Clock drops while temperature is high indicate thermal throttling",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "max(gpu_junction_temperature)", "legendFormat": "Junction temp (°C)", "refId": "A" },
+        { "expr": "max(gpu_clock)", "legendFormat": "GPU clock (MHz)", "refId": "B" }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 15, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "smooth" },
+          "unit": "percent", "min": 0, "max": 100
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 7 },
+      "id": 6,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "Clock Headroom — Throttle Proxy",
+      "description": "Sustained drops below 80% indicate throttling. Below 50% is severe.",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "max(gpu_clock) / max(gpu_max_clock) * 100", "legendFormat": "Clock headroom %", "refId": "A" }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "ECC Error Tracking",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 16 },
+      "id": 102,
+      "collapsed": false
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 10, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "stepAfter" },
+          "unit": "short", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 17 },
+      "id": 7,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "Correctable ECC Errors by Subsystem",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "max(gpu_ecc_correct_gfx)", "legendFormat": "GFX", "refId": "A" },
+        { "expr": "max(gpu_ecc_correct_umc)", "legendFormat": "UMC (memory)", "refId": "B" },
+        { "expr": "max(gpu_ecc_correct_sdma)", "legendFormat": "SDMA", "refId": "C" },
+        { "expr": "max(gpu_ecc_correct_mmhub)", "legendFormat": "MMHUB", "refId": "D" },
+        { "expr": "max(gpu_ecc_correct_total)", "legendFormat": "Total", "refId": "E" }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 10, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "stepAfter" },
+          "unit": "short", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 17 },
+      "id": 8,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "Uncorrectable ECC Errors by Subsystem",
+      "description": "Any non-zero value here is a hardware concern",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "max(gpu_ecc_uncorrect_gfx)", "legendFormat": "GFX", "refId": "A" },
+        { "expr": "max(gpu_ecc_uncorrect_umc)", "legendFormat": "UMC (memory)", "refId": "B" },
+        { "expr": "max(gpu_ecc_uncorrect_sdma)", "legendFormat": "SDMA", "refId": "C" },
+        { "expr": "max(gpu_ecc_uncorrect_mmhub)", "legendFormat": "MMHUB", "refId": "D" },
+        { "expr": "max(gpu_ecc_uncorrect_total)", "legendFormat": "Total", "refId": "E" }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Anomaly Detection — Sudden Changes",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 25 },
+      "id": 103,
+      "collapsed": false
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 10, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "smooth" },
+          "unit": "decmbytes"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 26 },
+      "id": 9,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "VRAM Delta (instant − 5m avg)",
+      "description": "Large positive spikes = sudden allocation. Large negative = sudden free.",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "max(gpu_used_vram) - avg_over_time(max(gpu_used_vram)[5m:])", "legendFormat": "VRAM delta", "refId": "A" }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 10, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "smooth" },
+          "unit": "celsius"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 26 },
+      "id": 10,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "Temperature Delta (instant − 5m avg)",
+      "description": "Sudden spikes indicate thermal anomalies",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "max(gpu_junction_temperature) - avg_over_time(max(gpu_junction_temperature)[5m:])", "legendFormat": "Junction delta", "refId": "A" },
+        { "expr": "max(gpu_edge_temperature) - avg_over_time(max(gpu_edge_temperature)[5m:])", "legendFormat": "Edge delta", "refId": "B" }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 10, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "smooth" },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 34 },
+      "id": 11,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "GFX Activity Delta (instant − 5m avg)",
+      "description": "Sudden drops may indicate GPU hangs or driver issues",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "max(gpu_gfx_activity) - avg_over_time(max(gpu_gfx_activity)[5m:])", "legendFormat": "GFX delta", "refId": "A" }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 10, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "smooth" },
+          "unit": "watt"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 34 },
+      "id": 12,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "Power Delta (instant − 5m avg)",
+      "description": "Sudden power drops with high utilization may indicate power throttling",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "max(gpu_average_package_power) - avg_over_time(max(gpu_average_package_power)[5m:])", "legendFormat": "Power delta", "refId": "A" }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "XGMI Link Health",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 42 },
+      "id": 104,
+      "collapsed": false
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 10, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "smooth" },
+          "unit": "short", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 43 },
+      "id": 13,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "XGMI Throughput",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "max(gpu_xgmi_nbr_0_tx_thrput)", "legendFormat": "XGMI Nbr0 TX", "refId": "A" },
+        { "expr": "max(gpu_xgmi_nbr_1_tx_thrput)", "legendFormat": "XGMI Nbr1 TX", "refId": "B" }
+      ]
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 39,
+  "tags": ["gpu", "amd", "diagnostics", "infrastructure"],
+  "templating": { "list": [] },
+  "time": { "from": "now-3h", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "AMD W7800 — Diagnostics",
+  "uid": "amd-w7800-diagnostics",
+  "version": 1
+}

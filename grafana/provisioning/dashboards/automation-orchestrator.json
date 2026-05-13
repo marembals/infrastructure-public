@@ -1,0 +1,175 @@
+{
+  "dashboard": {
+    "id": null,
+    "uid": "automation-orchestrator",
+    "title": "Automation Orchestrator",
+    "tags": ["orchestrator", "automation"],
+    "timezone": "browser",
+    "schemaVersion": 39,
+    "refresh": "30s",
+    "time": {
+      "from": "now-6h",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "Task Runs (rate/5m)",
+        "type": "timeseries",
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "targets": [
+          {
+            "expr": "sum(rate(orchestrator_task_runs_total[5m])) by (status)",
+            "legendFormat": "{{status}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "drawStyle": "bars",
+              "fillOpacity": 40,
+              "stacking": { "mode": "normal" }
+            },
+            "unit": "ops"
+          },
+          "overrides": [
+            { "matcher": { "id": "byName", "options": "completed" }, "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }] },
+            { "matcher": { "id": "byName", "options": "failed" }, "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }] },
+            { "matcher": { "id": "byName", "options": "timeout" }, "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }] }
+          ]
+        }
+      },
+      {
+        "id": 2,
+        "title": "Run Duration",
+        "type": "timeseries",
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, sum(rate(orchestrator_task_run_duration_seconds_bucket[5m])) by (le, task_name))",
+            "legendFormat": "p50 {{task_name}}",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(orchestrator_task_run_duration_seconds_bucket[5m])) by (le, task_name))",
+            "legendFormat": "p95 {{task_name}}",
+            "refId": "B"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": { "unit": "s" }
+        }
+      },
+      {
+        "id": 3,
+        "title": "Enabled Tasks",
+        "type": "stat",
+        "gridPos": { "h": 4, "w": 4, "x": 0, "y": 8 },
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "targets": [
+          {
+            "expr": "orchestrator_tasks_enabled_total",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": { "color": { "fixedColor": "blue", "mode": "fixed" } }
+        }
+      },
+      {
+        "id": 4,
+        "title": "Scheduled Tasks",
+        "type": "stat",
+        "gridPos": { "h": 4, "w": 4, "x": 4, "y": 8 },
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "targets": [
+          {
+            "expr": "orchestrator_tasks_scheduled_total",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": { "color": { "fixedColor": "purple", "mode": "fixed" } }
+        }
+      },
+      {
+        "id": 5,
+        "title": "Runs In Progress",
+        "type": "stat",
+        "gridPos": { "h": 4, "w": 4, "x": 8, "y": 8 },
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "targets": [
+          {
+            "expr": "orchestrator_runs_in_progress",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": { "color": { "fixedColor": "green", "mode": "fixed" } }
+        }
+      },
+      {
+        "id": 6,
+        "title": "Success Rate",
+        "type": "gauge",
+        "gridPos": { "h": 4, "w": 4, "x": 12, "y": 8 },
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "targets": [
+          {
+            "expr": "sum(orchestrator_task_runs_total{status=\"completed\"}) / sum(orchestrator_task_runs_total) * 100",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "min": 0,
+            "max": 100,
+            "thresholds": {
+              "steps": [
+                { "color": "red", "value": null },
+                { "color": "orange", "value": 70 },
+                { "color": "green", "value": 90 }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 7,
+        "title": "Failures by Task",
+        "type": "timeseries",
+        "gridPos": { "h": 8, "w": 8, "x": 16, "y": 8 },
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "targets": [
+          {
+            "expr": "sum(rate(orchestrator_task_failures_total[5m])) by (task_name, error_type)",
+            "legendFormat": "{{task_name}} ({{error_type}})",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": { "unit": "ops" }
+        }
+      },
+      {
+        "id": 8,
+        "title": "Total Runs by Task",
+        "type": "piechart",
+        "gridPos": { "h": 8, "w": 8, "x": 0, "y": 12 },
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "targets": [
+          {
+            "expr": "sum(orchestrator_task_runs_total) by (task_name)",
+            "legendFormat": "{{task_name}}",
+            "refId": "A"
+          }
+        ]
+      }
+    ]
+  },
+  "overwrite": true
+}

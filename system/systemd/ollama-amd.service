@@ -1,0 +1,52 @@
+[Unit]
+Description=Ollama Server (AMD GPU)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ollama
+Group=ollama
+
+# Second instance port:
+Environment="OLLAMA_HOST=0.0.0.0:11435"
+
+# Pin to AMD ROCm GPU:
+Environment="ROCR_VISIBLE_DEVICES=0"
+Environment="HIP_VISIBLE_DEVICES=0"
+Environment="GPU_DEVICE_ORDINAL=0"
+
+# Hide NVIDIA CUDA from this instance:
+Environment="CUDA_VISIBLE_DEVICES=-1"
+
+# Force ONLY AMD Vulkan ICD - prevents NVIDIA Vulkan from loading, making AMD Vulkan device index 0:
+#Environment="VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/radeon_icd.json"
+#Environment="OLLAMA_VULKAN=1"
+#Environment="GGML_VK_VISIBLE_DEVICES=0"
+
+# ROCm gfx version override for W7800 / gfx1100:
+#Environment="HSA_OVERRIDE_GFX_VERSION=11.0.0"
+Environment="OLLAMA_LLM_LIBRARY=rocm"
+# Separate model store to avoid concurrent pulls/locks:
+Environment="OLLAMA_MODELS=/var/lib/ollama-amd"
+
+# Global context size override 
+#Environment="OLLAMA_CONTEXT_LENGTH=131072"
+
+# Flash Attention
+Environment="OLLAMA_FLASH_ATTENTION=1"
+
+# Additional inference optimizations
+Environment="OLLAMA_KV_CACHE_TYPE=q8_0"
+Environment="OLLAMA_KEEP_ALIVE=-1"
+Environment="OLLAMA_MAX_LOADED_MODELS=1"
+Environment="OLLAMA_NUM_PARALLEL=1"
+Environment="OLLAMA_GPU_LAYERS=999"
+
+
+ExecStart=/usr/local/bin/ollama serve
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

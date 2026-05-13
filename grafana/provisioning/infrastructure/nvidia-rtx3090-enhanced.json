@@ -1,0 +1,565 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [
+    { "title": "NVIDIA Overview", "url": "/d/nvidia-rtx3090-gpu", "type": "link", "icon": "external link" },
+    { "title": "Pipeline Monitor", "url": "/d/gpu-pipeline-monitor", "type": "link", "icon": "external link" }
+  ],
+  "panels": [
+    {
+      "type": "row",
+      "title": "Throttling & Violations",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "collapsed": false
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "orange" },
+          "unit": "ns", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 1 },
+      "id": 1,
+      "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "title": "Power Throttle (total)",
+      "type": "stat",
+      "targets": [{ "expr": "DCGM_FI_DEV_POWER_VIOLATION", "legendFormat": "", "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "red" },
+          "unit": "ns", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 1 },
+      "id": 2,
+      "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "title": "Thermal Throttle (total)",
+      "type": "stat",
+      "targets": [{ "expr": "DCGM_FI_DEV_THERMAL_VIOLATION", "legendFormat": "", "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "yellow" },
+          "unit": "ns", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 1 },
+      "id": 3,
+      "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "title": "Board Limit (total)",
+      "type": "stat",
+      "targets": [{ "expr": "DCGM_FI_DEV_BOARD_LIMIT_VIOLATION", "legendFormat": "", "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "blue" },
+          "unit": "ns", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 1 },
+      "id": 4,
+      "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "title": "Low Util Throttle (total)",
+      "type": "stat",
+      "targets": [{ "expr": "DCGM_FI_DEV_LOW_UTIL_VIOLATION", "legendFormat": "", "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "purple" },
+          "unit": "ns", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 1 },
+      "id": 5,
+      "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "title": "Reliability Throttle (total)",
+      "type": "stat",
+      "targets": [{ "expr": "DCGM_FI_DEV_RELIABILITY_VIOLATION", "legendFormat": "", "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "semi-dark-green" },
+          "unit": "ns", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 20, "y": 1 },
+      "id": 6,
+      "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "title": "Sync Boost Throttle (total)",
+      "type": "stat",
+      "targets": [{ "expr": "DCGM_FI_DEV_SYNC_BOOST_VIOLATION", "legendFormat": "", "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 15, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "smooth" },
+          "unit": "ns", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 5 },
+      "id": 7,
+      "options": { "legend": { "displayMode": "table", "placement": "right", "calcs": ["lastNotNull"] }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "Throttle Violation Counters Over Time",
+      "description": "Monotonic counters — rising slopes indicate active throttling",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "DCGM_FI_DEV_POWER_VIOLATION", "legendFormat": "Power", "refId": "A" },
+        { "expr": "DCGM_FI_DEV_THERMAL_VIOLATION", "legendFormat": "Thermal", "refId": "B" },
+        { "expr": "DCGM_FI_DEV_BOARD_LIMIT_VIOLATION", "legendFormat": "Board limit", "refId": "C" },
+        { "expr": "DCGM_FI_DEV_LOW_UTIL_VIOLATION", "legendFormat": "Low util", "refId": "D" },
+        { "expr": "DCGM_FI_DEV_RELIABILITY_VIOLATION", "legendFormat": "Reliability", "refId": "E" },
+        { "expr": "DCGM_FI_DEV_SYNC_BOOST_VIOLATION", "legendFormat": "Sync boost", "refId": "F" }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 20, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "smooth" },
+          "unit": "ns", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 13 },
+      "id": 8,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "Throttle Rate (increase per 5m)",
+      "description": "Non-zero values = GPU is currently being throttled for that reason",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "rate(DCGM_FI_DEV_POWER_VIOLATION[5m])", "legendFormat": "Power throttle rate", "refId": "A" },
+        { "expr": "rate(DCGM_FI_DEV_THERMAL_VIOLATION[5m])", "legendFormat": "Thermal throttle rate", "refId": "B" },
+        { "expr": "rate(DCGM_FI_DEV_BOARD_LIMIT_VIOLATION[5m])", "legendFormat": "Board limit rate", "refId": "C" }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Power vs Utilization Correlation",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 21 },
+      "id": 101,
+      "collapsed": false
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 15, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "smooth" },
+          "unit": "short"
+        },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Power (W)" }, "properties": [{ "id": "custom.axisPlacement", "value": "left" }, { "id": "unit", "value": "watt" }, { "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "GPU util %" }, "properties": [{ "id": "custom.axisPlacement", "value": "right" }, { "id": "unit", "value": "percent" }, { "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }] }
+        ]
+      },
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 22 },
+      "id": 9,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "Power Draw vs GPU Utilization",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "DCGM_FI_DEV_POWER_USAGE", "legendFormat": "Power (W)", "refId": "A" },
+        { "expr": "DCGM_FI_DEV_GPU_UTIL", "legendFormat": "GPU util %", "refId": "B" }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 15, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "smooth" },
+          "unit": "short"
+        },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Power (W)" }, "properties": [{ "id": "custom.axisPlacement", "value": "left" }, { "id": "unit", "value": "watt" }, { "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "Mem copy util %" }, "properties": [{ "id": "custom.axisPlacement", "value": "right" }, { "id": "unit", "value": "percent" }, { "id": "color", "value": { "fixedColor": "blue", "mode": "fixed" } }] }
+        ]
+      },
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 22 },
+      "id": 10,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "Power Draw vs Memory Copy Utilization",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "DCGM_FI_DEV_POWER_USAGE", "legendFormat": "Power (W)", "refId": "A" },
+        { "expr": "DCGM_FI_DEV_MEM_COPY_UTIL", "legendFormat": "Mem copy util %", "refId": "B" }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Memory Deep Dive",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 31 },
+      "id": 102,
+      "collapsed": false
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "blue" },
+          "unit": "decmbytes", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 32 },
+      "id": 11,
+      "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "title": "VRAM Used",
+      "type": "stat",
+      "targets": [{ "expr": "DCGM_FI_DEV_FB_USED", "legendFormat": "", "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "green" },
+          "unit": "decmbytes", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 32 },
+      "id": 12,
+      "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "title": "VRAM Free",
+      "type": "stat",
+      "targets": [{ "expr": "DCGM_FI_DEV_FB_FREE", "legendFormat": "", "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "orange" },
+          "unit": "decmbytes", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 32 },
+      "id": 13,
+      "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "title": "VRAM Reserved",
+      "type": "stat",
+      "targets": [{ "expr": "DCGM_FI_DEV_FB_RESERVED", "legendFormat": "", "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "purple" },
+          "unit": "percent", "min": 0, "max": 100
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 32 },
+      "id": 14,
+      "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "title": "Memory Copy Util %",
+      "type": "stat",
+      "targets": [{ "expr": "DCGM_FI_DEV_MEM_COPY_UTIL", "legendFormat": "", "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 20, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "smooth", "stacking": { "mode": "normal" } },
+          "unit": "decmbytes", "min": 0
+        },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Used" }, "properties": [{ "id": "color", "value": { "fixedColor": "blue", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "Reserved" }, "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "Free" }, "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }] }
+        ]
+      },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 36 },
+      "id": 15,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "VRAM Allocation — Stacked (Used + Reserved + Free)",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "DCGM_FI_DEV_FB_USED", "legendFormat": "Used", "refId": "A" },
+        { "expr": "DCGM_FI_DEV_FB_RESERVED", "legendFormat": "Reserved", "refId": "B" },
+        { "expr": "DCGM_FI_DEV_FB_FREE", "legendFormat": "Free", "refId": "C" }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Clock Behavior",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 44 },
+      "id": 103,
+      "collapsed": false
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 10, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "smooth" },
+          "unit": "rotMHz", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 45 },
+      "id": 16,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "SM & Memory Clocks",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "DCGM_FI_DEV_SM_CLOCK", "legendFormat": "SM clock", "refId": "A" },
+        { "expr": "DCGM_FI_DEV_MEM_CLOCK", "legendFormat": "Memory clock", "refId": "B" }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 10, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "smooth" },
+          "unit": "short"
+        },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "SM clock (MHz)" }, "properties": [{ "id": "custom.axisPlacement", "value": "left" }, { "id": "unit", "value": "rotMHz" }, { "id": "color", "value": { "fixedColor": "blue", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "GPU temp (°C)" }, "properties": [{ "id": "custom.axisPlacement", "value": "right" }, { "id": "unit", "value": "celsius" }, { "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }] }
+        ]
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 45 },
+      "id": 17,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "Clock vs Temperature (thermal throttle indicator)",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "DCGM_FI_DEV_SM_CLOCK", "legendFormat": "SM clock (MHz)", "refId": "A" },
+        { "expr": "DCGM_FI_DEV_GPU_TEMP", "legendFormat": "GPU temp (°C)", "refId": "B" }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "ECC & Error Tracking",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 53 },
+      "id": 104,
+      "collapsed": false
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "green" },
+          "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 1 }, { "color": "red", "value": 10 }] },
+          "unit": "short", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 54 },
+      "id": 18,
+      "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "title": "SBE Volatile",
+      "type": "stat",
+      "targets": [{ "expr": "DCGM_FI_DEV_ECC_SBE_VOL_TOTAL", "legendFormat": "", "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "green" },
+          "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1 }] },
+          "unit": "short", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 54 },
+      "id": 19,
+      "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "title": "DBE Volatile",
+      "type": "stat",
+      "targets": [{ "expr": "DCGM_FI_DEV_ECC_DBE_VOL_TOTAL", "legendFormat": "", "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "green" },
+          "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 1 }, { "color": "red", "value": 10 }] },
+          "unit": "short", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 54 },
+      "id": 20,
+      "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "title": "SBE Aggregate",
+      "type": "stat",
+      "targets": [{ "expr": "DCGM_FI_DEV_ECC_SBE_AGG_TOTAL", "legendFormat": "", "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "green" },
+          "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1 }] },
+          "unit": "short", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 54 },
+      "id": 21,
+      "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "title": "DBE Aggregate",
+      "type": "stat",
+      "targets": [{ "expr": "DCGM_FI_DEV_ECC_DBE_AGG_TOTAL", "legendFormat": "", "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 10, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "stepAfter" },
+          "unit": "short", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 58 },
+      "id": 22,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "ECC Error Counters Over Time",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "DCGM_FI_DEV_ECC_SBE_VOL_TOTAL", "legendFormat": "SBE volatile", "refId": "A" },
+        { "expr": "DCGM_FI_DEV_ECC_DBE_VOL_TOTAL", "legendFormat": "DBE volatile", "refId": "B" },
+        { "expr": "DCGM_FI_DEV_ECC_SBE_AGG_TOTAL", "legendFormat": "SBE aggregate", "refId": "C" },
+        { "expr": "DCGM_FI_DEV_ECC_DBE_AGG_TOTAL", "legendFormat": "DBE aggregate", "refId": "D" }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 10, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "stepAfter" },
+          "unit": "short", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 58 },
+      "id": 23,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "XID Errors & PCIe Retries",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "DCGM_FI_DEV_XID_ERRORS", "legendFormat": "Last XID error", "refId": "A" },
+        { "expr": "DCGM_EXP_XID_ERRORS_COUNT", "legendFormat": "XID error count", "refId": "B" },
+        { "expr": "DCGM_FI_DEV_PCIE_REPLAY_COUNTER", "legendFormat": "PCIe retries", "refId": "C" }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Energy Consumption",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 66 },
+      "id": 105,
+      "collapsed": false
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 20, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "smooth", "gradientMode": "scheme" },
+          "unit": "watt", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 67 },
+      "id": 24,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "Power Draw Over Time",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "DCGM_FI_DEV_POWER_USAGE", "legendFormat": "Power (W)", "refId": "A" },
+        { "expr": "avg_over_time(DCGM_FI_DEV_POWER_USAGE[5m])", "legendFormat": "5m avg (W)", "refId": "B" }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 10, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "smooth" },
+          "unit": "short", "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 67 },
+      "id": 25,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "Total Energy Consumption (mJ since boot)",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "DCGM_FI_DEV_TOTAL_ENERGY_CONSUMPTION / 1000000", "legendFormat": "Energy (J)", "refId": "A" }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Encoder / Decoder Utilization",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 75 },
+      "id": 106,
+      "collapsed": false
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 20, "lineWidth": 2, "spanNulls": true, "drawStyle": "line", "lineInterpolation": "smooth" },
+          "unit": "percent", "min": 0, "max": 100
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 76 },
+      "id": 26,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "GPU / Encoder / Decoder Utilization",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "DCGM_FI_DEV_GPU_UTIL", "legendFormat": "GPU util %", "refId": "A" },
+        { "expr": "DCGM_FI_DEV_MEM_COPY_UTIL", "legendFormat": "Mem copy util %", "refId": "B" },
+        { "expr": "DCGM_FI_DEV_ENC_UTIL", "legendFormat": "Encoder %", "refId": "C" },
+        { "expr": "DCGM_FI_DEV_DEC_UTIL", "legendFormat": "Decoder %", "refId": "D" }
+      ]
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 39,
+  "tags": ["gpu", "nvidia", "enhanced", "infrastructure"],
+  "templating": { "list": [] },
+  "time": { "from": "now-3h", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "NVIDIA RTX 3090 — Enhanced Metrics",
+  "uid": "nvidia-rtx3090-enhanced",
+  "version": 1
+}

@@ -1,0 +1,544 @@
+name: ai-stack
+
+services:
+  # -------------------------
+  # Observability Stack
+  # -------------------------
+  prometheus:
+    image: prom/prometheus:v2.51.2
+    container_name: prometheus
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=15d
+    volumes:
+      - ./observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - /mnt/data/observability/prometheus:/prometheus
+    ports:
+      - "0.0.0.0:9091:9090"
+    networks:
+      - ai-internal
+    extra_hosts:
+      - "host.docker.internal:172.19.0.1"
+
+  grafana:
+    image: grafana/grafana:11.4.0
+    container_name: grafana
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+    volumes:
+      - /mnt/data/observability/grafana:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ../ai-gateway/dashboards:/var/lib/grafana/dashboards/gateway:ro
+    ports:
+      - "0.0.0.0:3001:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - ai-internal
+    extra_hosts:
+      - "host.docker.internal:172.19.0.1"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  node_exporter:
+    image: prom/node-exporter:v1.8.1
+    container_name: node_exporter
+    restart: unless-stopped
+    command:
+      - --path.rootfs=/host
+    pid: host
+    volumes:
+      - /:/host:ro,rslave
+    networks:
+      - ai-internal
+    extra_hosts:
+      - "host.docker.internal:172.19.0.1"
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    container_name: cadvisor
+    restart: unless-stopped
+    privileged: true
+    command:
+      - --docker_only=true
+      - --housekeeping_interval=10s
+      - --max_housekeeping_interval=15s
+    devices:
+      - /dev/kmsg:/dev/kmsg
+    volumes:
+      - /:/rootfs:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    ports:
+      - "0.0.0.0:8080:8080"
+    networks:
+      - ai-internal
+    extra_hosts:
+      - "host.docker.internal:172.19.0.1"
+
+  dcgm-hostengine:
+    image: nvidia/dcgm:4.5.2-1-ubuntu22.04
+    container_name: dcgm-hostengine
+    restart: unless-stopped
+    privileged: true
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=utility,compute
+    networks:
+      - ai-internal
+    extra_hosts:
+      - "host.docker.internal:172.19.0.1"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  dcgm_exporter:
+    image: nvidia/dcgm-exporter:4.5.2-4.8.1-ubuntu22.04
+    container_name: dcgm_exporter
+    restart: unless-stopped
+    depends_on:
+      - dcgm-hostengine
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=utility,compute
+      - DCGM_REMOTE_HOSTENGINE_INFO=dcgm-hostengine:5555
+    volumes:
+      - ./observability/dcgm-metrics.csv:/etc/dcgm-exporter/custom-counters.csv:ro
+    command: ["-f", "/etc/dcgm-exporter/custom-counters.csv"]
+    ports:
+      - "0.0.0.0:9400:9400"
+    networks:
+      - ai-internal
+    extra_hosts:
+      - "host.docker.internal:172.19.0.1"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  device_metrics_exporter:
+    image: rocm/device-metrics-exporter:v1.4.2
+    container_name: device-metrics-exporter
+    restart: unless-stopped
+    devices:
+      - /dev/dri:/dev/dri
+      - /dev/kfd:/dev/kfd
+    cap_add:
+      - SYS_ADMIN
+    ports:
+      - "0.0.0.0:5000:5000"
+    networks:
+      - ai-internal
+    extra_hosts:
+      - "host.docker.internal:172.19.0.1"
+
+  blackbox-exporter:
+    image: prom/blackbox-exporter:latest
+    container_name: blackbox-exporter
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/blackbox_exporter/config.yml
+    volumes:
+      - ./observability/blackbox.yml:/etc/blackbox_exporter/config.yml:ro
+    ports:
+      - "0.0.0.0:9115:9115"
+    networks:
+      - ai-internal
+    extra_hosts:
+      - "host.docker.internal:172.19.0.1"
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.62.0
+    container_name: jaeger
+    restart: unless-stopped
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    ports:
+      - "0.0.0.0:16686:16686"
+      - "0.0.0.0:4317:4317"
+      - "0.0.0.0:4318:4318"
+    networks:
+      - ai-internal
+    extra_hosts:
+      - "host.docker.internal:172.19.0.1"
+
+  # -------------------------
+  # Data & Search Services
+  # -------------------------
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant
+    restart: unless-stopped
+    ports:
+      - "0.0.0.0:6333:6333"
+      - "0.0.0.0:6334:6334"
+    volumes:
+      - /mnt/data/rag/qdrant:/qdrant/storage
+    networks:
+      - ai-internal
+    extra_hosts:
+      - "host.docker.internal:172.19.0.1"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  searxng:
+    image: searxng/searxng:latest
+    container_name: searxng
+    restart: unless-stopped
+    ports:
+      - "0.0.0.0:8081:8080"
+    networks:
+      - ai-internal
+    extra_hosts:
+      - "host.docker.internal:172.19.0.1"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # -------------------------
+  # Generative Services
+  # -------------------------
+  comfyui:
+    image: yanwk/comfyui-boot:cu128-slim
+    container_name: comfyui
+    restart: unless-stopped
+    ports:
+      - "0.0.0.0:8188:8188"
+    networks:
+      - ai-internal
+    extra_hosts:
+      - "host.docker.internal:172.19.0.1"
+    volumes:
+      - /mnt/data/comfyui:/workspace
+
+  open-webui:
+    image: open-webui-with-dockercli
+    container_name: open-webui
+    restart: unless-stopped
+    ports:
+      - "0.0.0.0:3000:3000"
+    environment:
+      - PORT=3000
+    volumes:
+      - /mnt/data/open-webui:/app/backend/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - ai-internal
+    extra_hosts:
+      - "host.docker.internal:172.19.0.1"
+
+  # -------------------------
+  # AI Gateway (moved to bridge)
+  # -------------------------
+  ai-gateway:
+    build:
+      context: ../ai-gateway
+      dockerfile: docker/Dockerfile
+    container_name: ai-gateway
+    restart: unless-stopped
+    networks:
+      - ai-internal
+    ports:
+      - "0.0.0.0:8088:8088"
+    environment:
+      - AIGW_CONFIG_PATH=/app/config/config.yaml
+      - LOG_LEVEL=DEBUG
+      - UVICORN_LOG_LEVEL=debug
+    volumes:
+      - ../ai-gateway/config:/app/config:ro
+      - /mnt/data/ai-gateway:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      prometheus:
+        condition: service_started
+      jaeger:
+        condition: service_started
+      qdrant:
+        condition: service_started
+    extra_hosts:
+      - "host.docker.internal:172.19.0.1"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8088/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # -------------------------
+  # Automation Orchestrator (database)
+  # -------------------------
+  orchestrator-db:
+    image: postgres:16
+    container_name: orchestrator-db
+    restart: unless-stopped
+    ports:
+      - "5446:5432"
+    environment:
+      POSTGRES_DB: orchestrator
+      POSTGRES_USER: ${ORCHESTRATOR_DB_USER:-orch}
+      POSTGRES_PASSWORD: ${ORCHESTRATOR_DB_PASSWORD:-orch}
+    volumes:
+      - orchestrator_db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${ORCHESTRATOR_DB_USER:-orch} -d orchestrator"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ai-internal
+
+  # -------------------------
+  # Automation Orchestrator (API)
+  # -------------------------
+  ai-automation:
+    build:
+      context: ../ai-gateway
+      dockerfile: docker/Dockerfile.automation
+    container_name: ai-automation
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      ORCH_DATABASE_URL: "postgresql+asyncpg://${ORCH_DB_USER:-orch}:${ORCH_DB_PASSWORD:-orch}@localhost:5446/orchestrator"
+      ORCH_GATEWAY_URL: "http://localhost:8088"
+      ORCH_GATEWAY_MODEL: "gemma4:26b-a4b-it-q8_0"
+      ORCH_API_PORT: "8090"
+      ORCH_METRICS_PORT: "8092"
+      ORCH_LOG_DIR: /app/logs
+    volumes:
+      - orchestrator_logs:/app/logs
+    depends_on:
+      orchestrator-db:
+        condition: service_healthy
+      ai-gateway:
+        condition: service_healthy
+
+  # -------------------------
+  # Automation UI (standalone frontend)
+  # -------------------------
+  automation-ui:
+    build:
+      context: ../ai-gateway/ui/automation
+      dockerfile: Dockerfile
+    container_name: automation-ui
+    restart: unless-stopped
+    network_mode: host
+
+  # -------------------------
+  # Docker Services Portal
+  # -------------------------
+  portal:
+    build:
+      context: ../portal
+      dockerfile: Dockerfile
+    container_name: portal
+    restart: unless-stopped
+    environment:
+      - PORT=9000
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    ports:
+      - "0.0.0.0:3002:80"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./docker-compose.yml:/host-compose/docker-compose.yml:ro
+      - ../model_benchmarks-public/docker/docker-compose.yml:/host-compose/model_benchmarks/docker/docker-compose.yml:ro
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - ai-internal
+
+  # -------------------------
+  # Isolated Sandbox
+  # -------------------------
+  python-sandbox:
+    image: python:3.12-slim
+    container_name: python-sandbox
+    restart: unless-stopped
+    command: sleep infinity
+    network_mode: none
+  # -------------------------
+  # Paperless-ngx
+  # -------------------------
+  paperless-redis:
+    image: docker.io/library/redis:8
+    container_name: paperless-redis
+    restart: unless-stopped
+    volumes:
+      - /mnt/data/paperless/redisdata:/data
+    networks:
+      - ai-internal
+    extra_hosts:
+      - "host.docker.internal:172.19.0.1"
+
+  paperless-db:
+    image: docker.io/library/postgres:18
+    container_name: paperless-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: paperless
+      POSTGRES_USER: paperless
+      POSTGRES_PASSWORD: ${PAPERLESS_DB_PASSWORD}
+    volumes:
+      - /mnt/data/paperless/pgdata:/var/lib/postgresql
+    networks:
+      - ai-internal
+    extra_hosts:
+      - "host.docker.internal:172.19.0.1"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U paperless -d paperless"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  paperless-gotenberg:
+    image: docker.io/gotenberg/gotenberg:8.27
+    container_name: paperless-gotenberg
+    restart: unless-stopped
+    command:
+      - "gotenberg"
+      - "--chromium-disable-javascript=true"
+    networks:
+      - ai-internal
+    extra_hosts:
+      - "host.docker.internal:172.19.0.1"
+
+  paperless-tika:
+    image: docker.io/apache/tika:latest
+    container_name: paperless-tika
+    restart: unless-stopped
+    networks:
+      - ai-internal
+    extra_hosts:
+      - "host.docker.internal:172.19.0.1"
+
+  paperless:
+    image: ghcr.io/paperless-ngx/paperless-ngx:latest
+    container_name: paperless
+    restart: unless-stopped
+    depends_on:
+      paperless-db:
+        condition: service_healthy
+      paperless-redis:
+        condition: service_started
+      paperless-gotenberg:
+        condition: service_started
+      paperless-tika:
+        condition: service_started
+    ports:
+      - "0.0.0.0:8010:8000"
+    networks:
+      - ai-internal
+    extra_hosts:
+      - "host.docker.internal:172.19.0.1"
+    environment:
+      USERMAP_UID: "1000"
+      USERMAP_GID: "1000"
+
+      PAPERLESS_REDIS: redis://paperless-redis:6379
+      PAPERLESS_DBHOST: paperless-db
+      PAPERLESS_DBNAME: paperless
+      PAPERLESS_DBUSER: paperless
+      PAPERLESS_DBPASS: ${PAPERLESS_DB_PASSWORD}
+
+      PAPERLESS_SECRET_KEY: ${PAPERLESS_SECRET_KEY}
+      PAPERLESS_URL: http://localhost:8010
+      PAPERLESS_TIME_ZONE: ${TZ:-UTC}
+
+      PAPERLESS_TIKA_ENABLED: "1"
+      PAPERLESS_TIKA_ENDPOINT: http://paperless-tika:9998
+      PAPERLESS_TIKA_GOTENBERG_ENDPOINT: http://paperless-gotenberg:3000
+
+      PAPERLESS_OCR_LANGUAGES: "heb por"
+      PAPERLESS_OCR_LANGUAGE: "heb+eng+por"
+      PAPERLESS_EMAIL_PARSE_DEFAULT_LAYOUT: "1"
+
+      PAPERLESS_ADMIN_USER: ${PAPERLESS_ADMIN_USER:-admin}
+      PAPERLESS_ADMIN_PASSWORD: ${PAPERLESS_ADMIN_PASSWORD}
+    volumes:
+      - /mnt/data/paperless/data:/usr/src/paperless/data
+      - /mnt/data/paperless/media:/usr/src/paperless/media
+      - /mnt/data/paperless/export:/usr/src/paperless/export
+      - /mnt/data/paperless/consume:/usr/src/paperless/consume
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+  # -------------------------
+  # vLLM Coder Lane (on-demand, NVIDIA GPU)
+  # -------------------------
+  vllm-coder:
+    image: vllm/vllm-openai:v0.6.6.post1
+    container_name: vllm-coder
+    profiles: ["vllm"]
+    restart: "no"
+    networks:
+      - ai-internal
+    ports:
+      - "0.0.0.0:8000:8000"
+    volumes:
+      - /mnt/data/models/huggingface:/root/.cache/huggingface
+    environment:
+      - HF_HOME=/root/.cache/huggingface
+      - HUGGING_FACE_HUB_TOKEN=${HUGGING_FACE_HUB_TOKEN}
+      - NVIDIA_VISIBLE_DEVICES=0
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+    shm_size: "8gb"
+    extra_hosts:
+      - "host.docker.internal:172.19.0.1"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    command:
+      - "--model"
+      - "Qwen/Qwen1.5-7B-Chat-AWQ"
+      - "--quantization"
+      - "awq"
+      - "--host"
+      - "0.0.0.0"
+      - "--port"
+      - "8000"
+      - "--served-model-name"
+      - "coder-32b"
+      - "--dtype"
+      - "auto"
+      - "--gpu-memory-utilization"
+      - "0.8"
+      - "--max-model-len"
+      - "4096"
+
+networks:
+  ai-internal:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.19.0.0/16
+
+volumes:
+  orchestrator_db:
+  orchestrator_logs:

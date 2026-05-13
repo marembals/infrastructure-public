@@ -1,0 +1,37 @@
+[Unit]
+Description=Ollama Service (Nvidia RTX 3090)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ollama
+Group=ollama
+
+ExecStart=/usr/local/bin/ollama serve
+
+Restart=always
+RestartSec=3
+
+# Bind to NVIDIA instance port
+Environment="OLLAMA_HOST=0.0.0.0:11434"
+
+# PIN TO NVIDIA ONLY
+Environment="CUDA_VISIBLE_DEVICES=0"
+
+# HIDE AMD / ROCm
+Environment="ROCR_VISIBLE_DEVICES=-1"
+Environment="HIP_VISIBLE_DEVICES=-1"
+
+# Shared model store
+Environment="OLLAMA_MODELS=/mnt/data/models/ollama"
+
+# Same tuning as AMD (optional but consistent)
+Environment="OLLAMA_FLASH_ATTENTION=1"
+Environment="OLLAMA_KV_CACHE_TYPE=q8_0"
+Environment="OLLAMA_KEEP_ALIVE=-1"
+Environment="OLLAMA_MAX_LOADED_MODELS=1"
+Environment="OLLAMA_NUM_PARALLEL=1"
+
+[Install]
+WantedBy=multi-user.target
